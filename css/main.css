@@ -1,0 +1,95 @@
+* {
+    margin: 0;
+    padding: 0
+}
+
+body {
+    font: 14px/18px Arial;
+}
+
+h1 {
+    font-size: 26px;
+    margin-bottom: 20px;
+    font-weight: normal;
+    line-height: 30px;
+    width: 100%;
+}
+
+p {
+    margin: 0 0 15px;
+}
+
+ul {
+    margin: 0 0 15px 30px;
+}
+
+blockqoute {
+    padding: 0 0 0 20px;
+    border-left: 2px solid #999;
+    color: #333;
+    display: block;
+}
+
+hr {
+    border: none;
+    color: black;
+    background-color: black;
+    height: 1px;
+}
+
+#container {
+    width: 980px;
+    margin: 30px auto;
+}
+
+#container .left {
+    width: 780px;
+    float: left;
+}
+
+#container .right {
+    width: 180px;
+    float: right;
+}
+
+.news-list-link {
+    margin: 0 0 50px 0;
+}
+
+.news-block {
+    margin: 20px;
+}
+
+.news-date {
+    font-size: 10px;
+}
+
+.news-title {
+    margin: 10px 5px;
+    font-size: 16px;
+}
+
+.news-title .date {
+    margin: 0 5px 0 0;
+}
+
+.news-body {
+    font-size: 12px;
+}
+
+.pagination-block {
+    margin: 40px 0;
+    width: 100%;
+    text-align: center;
+    display: inline-block;
+}
+
+.pagination-item {
+    margin: 0 2px;
+    font-size: 16px;
+}
+
+.pagination-item.active {
+    font-weight: bold;
+    color: blue;
+}
