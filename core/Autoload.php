@@ -9,17 +9,16 @@
  */
 namespace core;
 
+class Autoload
+{
 
-class Autoload {
-
-    static public function run() {
-
+    public static function run()
+    {
         spl_autoload_register(__NAMESPACE__ . '\Autoload::load');
-
     }
 
-    static function load($class) {
-
+    public static function load($class)
+    {
         $path = str_replace("\\", DS, rtrim($class, "\\"));
         $fullPath = BASE_PATH . DS . $path . '.php';
         include_once $fullPath;

@@ -9,16 +9,16 @@
  */
 namespace core\db;
 
-
 use core\exception\DBException;
 
 /**
  * Class SDB
  *
- * @property PDO   $pdo
- * @property Array $serverConfig
+ * @property \PDO   $pdo
+ * @property array $serverConfig
  */
-class SDB {
+class SDB
+{
 
     private $pdo;
     private $_active = false;
@@ -31,8 +31,8 @@ class SDB {
     private $db = '';
     private $opt;
 
-    public function __construct() {
-
+    public function __construct()
+    {
         $dbConfigPath = BASE_PATH . DS . APP_DIR . DS . "config" . DS . "db.php";
         if (!file_exists($dbConfigPath)) {
             throw new DBException("Not exist database config file \"$dbConfigPath\"");
@@ -55,11 +55,10 @@ class SDB {
             \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
             \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
         );
-
     }
 
-    private function initConnection() {
-
+    private function initConnection()
+    {
         if ($this->charset !== null) {
             $driver = strtolower($this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME));
             if (in_array($driver, array('pgsql', 'mysql', 'mysqli'))) {
@@ -68,8 +67,8 @@ class SDB {
         }
     }
 
-    public function open() {
-
+    public function open()
+    {
         try {
             $this->pdo = new \PDO($this->dsn, $this->username, $this->password, $this->opt);
             $this->initConnection();
@@ -79,8 +78,8 @@ class SDB {
         }
     }
 
-    public function getInstance() {
-
+    public function getInstance()
+    {
         if ($this->pdo) {
             return $this->pdo;
         } else {
@@ -90,16 +89,15 @@ class SDB {
         }
     }
 
-    public function __sleep() {
-
+    public function __sleep()
+    {
         $this->close();
 
         return array_keys(get_object_vars($this));
-
     }
 
-    protected function close() {
-
+    protected function close()
+    {
         $this->pdo = null;
         $this->_active = false;
     }

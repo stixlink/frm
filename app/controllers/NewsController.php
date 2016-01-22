@@ -10,16 +10,16 @@
  */
 namespace app\controllers;
 
-
 use core;
 use core\exception\HttpException;
 use core\Request;
 use app\models\News;
 
-class NewsController extends core\Controller {
+class NewsController extends core\Controller
+{
 
-    public function actionIndex() {
-
+    public function actionIndex()
+    {
         $this->view->titlePage = "Новости";
         $criteria = ['where' => 'active=:active',
                      'order' => 'date_create DESC',
@@ -43,8 +43,8 @@ class NewsController extends core\Controller {
         }
     }
 
-    public function actionShow($id) {
-
+    public function actionShow($id)
+    {
         $news = News::instance()->findByPk((int)$id);
         if ($news && isset($news->title)) {
             $this->view->titlePage = "Новости - " . $news->title;

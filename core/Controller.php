@@ -12,11 +12,11 @@
  */
 namespace core;
 
-
 use core\View;
 use core\exception\HttpException;
 
-class Controller {
+class Controller
+{
 
     public $defaultAction = "index";
     private $_action;
@@ -25,16 +25,16 @@ class Controller {
     protected $view;
 
 
-    public function __construct($id, $action = null) {
-
+    public function __construct($id, $action = null)
+    {
         $this->_id = $id;
         $this->view = new View($this);
         $this->defaultAction = ucfirst($this->defaultAction);
         $this->_action = $this->_prefixAction . ucfirst($action ? $action : $this->defaultAction);
     }
 
-    public function run($params = null) {
-
+    public function run($params = null)
+    {
         $this->_action = (isset($params['action']) && $params['action']) ? $params['action'] : $this->_action;
 
         if (is_callable(array($this, $this->_action))) {
@@ -42,12 +42,10 @@ class Controller {
             exit();
         }
         throw new HttpException("Not exist action \"{$this->_action}\" in controller \"" . get_class($this) . "\"!", 404);
-
-
     }
 
-    public function getId() {
-
+    public function getId()
+    {
         return $this->_id;
     }
 }

@@ -7,4 +7,3 @@ core\Autoload::run();
 $routes = include(BASE_PATH . DS . APP_DIR . DS . "config" . DS . "route.php");
 $route = new \core\Route($routes);
 $route->run();
-

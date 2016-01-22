@@ -17,14 +17,15 @@
                 </div>
             <?php endforeach; ?>
         </div>
-        <?php
-        if ($pagination['countPage'] > 1) { ?>
+        <?php if ($pagination['countPage'] > 1): ?>
             <div class = "pagination-block">
-                <?php for ($i = 1; $pagination['countPage'] >= $i; $i++) { ?>
+                <?php for ($i = 1; $pagination['countPage'] >= $i; $i++):
+                    ?>
                     <a href = "/news?page=<?= $i ?>" data-page = "<?= $i ?>"
-                       class = "<?= $pagination['pageNum'] == $i ? "active" : ''; ?> pagination-item"><?php echo $i ?></a>
-                <?php } ?>
+                       class = "<?= $pagination['pageNum'] == $i ? "active" : '';
+                       ?> pagination-item"><?php echo $i ?></a>
+                <?php endfor; ?>
             </div>
-        <?php } ?>
+        <?php endif; ?>
     <?php endif; ?>
 </div>

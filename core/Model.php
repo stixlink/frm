@@ -9,11 +9,10 @@
 
 namespace core;
 
-
 use core\db\SDBQuery;
 
-
-abstract class Model {
+abstract class Model
+{
 
     protected $_attributes = array();
     private $_executor;
@@ -23,8 +22,8 @@ abstract class Model {
 
     abstract public function getPKName();
 
-    public function __construct() {
-
+    public function __construct()
+    {
         $this->_executor = new SDBQuery();
     }
 
@@ -33,8 +32,8 @@ abstract class Model {
      *
      * @return mixed
      */
-    static public function instance($className = __CLASS__) {
-
+    public static function instance($className = __CLASS__)
+    {
         return new $className();
     }
 
@@ -42,8 +41,8 @@ abstract class Model {
      * @param $name
      * @param $value
      */
-    public function __set($name, $value) {
-
+    public function __set($name, $value)
+    {
         $this->_attributes[$name] = $value;
     }
 
@@ -53,16 +52,16 @@ abstract class Model {
      *
      * @return null
      */
-    public function __get($name) {
-
+    public function __get($name)
+    {
         return isset($this->_attributes[$name]) ? $this->_attributes[$name] : null;
     }
 
     /**
      * @return array
      */
-    public function getErrors() {
-
+    public function getErrors()
+    {
         return $this->_errors;
     }
 
@@ -71,8 +70,8 @@ abstract class Model {
      *
      * @return  null
      */
-    public function getError($name) {
-
+    public function getError($name)
+    {
         return isset($this->_errors[$name]) ? $this->_errors[$name] : null;
     }
 
@@ -80,16 +79,16 @@ abstract class Model {
      * @param   String $name
      * @param   String $value
      */
-    public function setError($name, $value) {
-
+    public function setError($name, $value)
+    {
         $this->_errors[$name];
     }
 
     /**
      * @param array $attributes
      */
-    public function setAttributes(Array $attributes) {
-
+    public function setAttributes(array $attributes)
+    {
         $this->_attributes = $attributes;
     }
 
@@ -98,8 +97,8 @@ abstract class Model {
      *
      * @return array
      */
-    public function getAttributes($names = null) {
-
+    public function getAttributes($names = null)
+    {
         $values = $this->_attributes;
         if (is_array($names)) {
             $values2 = array();
@@ -111,7 +110,6 @@ abstract class Model {
         } else {
             return $values;
         }
-
     }
 
     /**
@@ -119,8 +117,8 @@ abstract class Model {
      *
      * @return null
      */
-    public function findByPk($pk) {
-
+    public function findByPk($pk)
+    {
         $pkName = $this->getPKName();
 
         $result = $this->_executor->query("SELECT * FROM {$this->getTableName()} WHERE {$pkName}=:{$pkName}", array(":{$pkName}" => $pk));
@@ -131,7 +129,6 @@ abstract class Model {
         } else {
             return null;
         }
-
     }
 
     /**
@@ -140,8 +137,8 @@ abstract class Model {
      *
      * @return array|null
      */
-    public function findAll(Array $condition = [], Array $params = []) {
-
+    public function findAll(array $condition = [], array $params = [])
+    {
         $query = "SELECT * FROM {$this->getTableName()} " . $this->generateQueryCondition($condition);
 
         $results = $this->_executor->queryAll($query, $params);
@@ -161,8 +158,8 @@ abstract class Model {
 
 
 
-    public function generateQueryCondition(Array $condition) {
-
+    public function generateQueryCondition(array $condition)
+    {
         $query = '';
         if (count($condition)) {
             $query .= isset($condition['where']) ? (" WHERE " . $condition['where']) : "";
@@ -179,29 +176,27 @@ abstract class Model {
         return $query;
     }
 
-    public function findBySqlAll($query, $params) {
-
+    public function findBySqlAll($query, $params)
+    {
         return $this->_executor->queryAll($query, $params);
     }
 
-    public function findBySql($query, $params) {
-
+    public function findBySql($query, $params)
+    {
         return $this->_executor->query($query, $params);
     }
 
-    public function __isset($key) {
-
+    public function __isset($key)
+    {
         if (isset($this->$key)) {
             return true;
         }
 
         return isset($this->_attributes[$key]);
-
-
     }
 
-    public function __unset($key) {
-
+    public function __unset($key)
+    {
         unset($this->$key);
         unset($this->_attributes[$key]);
     }

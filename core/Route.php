@@ -8,10 +8,10 @@
  */
 namespace core;
 
-
 use core\exception\HttpException;
 
-class Route {
+class Route
+{
 
     public $defaultController = "news";
 
@@ -20,13 +20,13 @@ class Route {
     private $_action;
 
 
-    function __construct(Array $routes) {
-
+    public function __construct(array $routes)
+    {
         $this->routes = $routes;
     }
 
-    function getURI() {
-
+    public function getURI()
+    {
         if (!empty($_SERVER['REQUEST_URI'])) {
             return trim($_SERVER['REQUEST_URI'], '/');
         }
@@ -40,8 +40,8 @@ class Route {
         }
     }
 
-    function run() {
-
+    public function run()
+    {
         $uri = $this->getURI();
         $m = parse_url($uri);
         if ($m) {
@@ -50,7 +50,6 @@ class Route {
             parse_str($query, $parameters);
         }
         foreach ($this->routes as $pattern => $route) {
-
             if (!$uri) {
                 $controllerFile = $this->getControllerFilePath($this->defaultController);
                 $controllerClass = $this->getNamespace($controllerFile);
@@ -81,16 +80,15 @@ class Route {
         }
 
         throw new HttpException('404', "The requested URL " . $uri . " was not found!");
-
     }
 
-    public function getControllerFilePath($controllerId) {
-
+    public function getControllerFilePath($controllerId)
+    {
         return BASE_PATH . DS . APP_DIR . DS . 'controllers' . DS . ucfirst($controllerId) . 'Controller.php';
     }
 
-    public function getNamespace($fullPath) {
-
+    public function getNamespace($fullPath)
+    {
         $path = str_replace([BASE_PATH, '.php'], "", $fullPath);
 
         $namespace = "\\" . trim(str_replace("/", "\\", $path), '\\');

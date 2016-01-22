@@ -9,7 +9,6 @@
  */
 namespace core\exception;
 
-
-class DBException extends \Exception {
-
+class DBException extends \Exception
+{
 }

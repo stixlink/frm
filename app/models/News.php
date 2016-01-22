@@ -9,18 +9,18 @@
 
 namespace app\models;
 
-
 use core;
 
-class News extends core\Model {
+class News extends core\Model
+{
 
     /**
      * Return name table
      *
      * @return string
      */
-    public function getTableName() {
-
+    public function getTableName()
+    {
         return "news";
     }
 
@@ -29,13 +29,13 @@ class News extends core\Model {
      *
      * @return string
      */
-    public function getPKName() {
-
+    public function getPKName()
+    {
         return "id";
     }
 
-    static public function instance($className = __CLASS__) {
-
+    public static function instance($className = __CLASS__)
+    {
         return parent::instance($className);
     }
 
@@ -44,8 +44,8 @@ class News extends core\Model {
      *
      * @return bool|string
      */
-    public function getDate() {
-
+    public function getDate()
+    {
         return date('d.m.Y', $this->date_create);
     }
 
@@ -54,8 +54,8 @@ class News extends core\Model {
      *
      * @return bool|string
      */
-    public function getTitle() {
-
+    public function getTitle()
+    {
         return $this->title;
     }
 
@@ -64,8 +64,8 @@ class News extends core\Model {
      *
      * @return bool|string
      */
-    public function getBody() {
-
+    public function getBody()
+    {
         return $this->body;
     }
 }

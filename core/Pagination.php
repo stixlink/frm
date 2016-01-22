@@ -11,10 +11,10 @@
  */
 namespace core;
 
-
 use core\Model;
 
-class Pagination {
+class Pagination
+{
 
     public $pageSize = 2;
     public $offset = 0;
@@ -24,19 +24,18 @@ class Pagination {
     private $_params;
 
 
-    public function __construct(Model $model, Array $condition = [], Array $params = [], $pageSize = null) {
-
+    public function __construct(Model $model, array $condition = [], array $params = [], $pageSize = null)
+    {
         if (!$pageSize) {
             $this->pageSize = (int)$pageSize;
         }
         $this->_model = $model;
         $this->_condition = $condition;
         $this->_params = $params;
-
     }
 
-    public function getPageCount($condition = [], $params = []) {
-
+    public function getPageCount($condition = [], $params = [])
+    {
         $queryCondition = $this->_model->generateQueryCondition($condition);
         $itemCount = $this->_model->findBySql("SELECT COUNT(*) as `count` FROM {$this->_model->getTableName()} " . $queryCondition, $params);
         if (isset($itemCount['count'])) {
@@ -46,8 +45,8 @@ class Pagination {
         return 0;
     }
 
-    public function getPage($pageCount) {
-
+    public function getPage($pageCount)
+    {
         $page = empty($_GET['page']) ? 1 : $_GET['page'];
         if ($page > $pageCount) {
             $page = $pageCount;
@@ -59,8 +58,8 @@ class Pagination {
         return $page;
     }
 
-    public function generate() {
-
+    public function generate()
+    {
         $pageCount = $this->getPageCount($this->_condition, $this->_params);
         $pageNum = $this->getPage($pageCount);
         $result = ['countPage' =>$pageCount ,
@@ -70,5 +69,4 @@ class Pagination {
 
         return $result;
     }
-
 }
