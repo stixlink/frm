@@ -9,8 +9,8 @@
  */
 namespace core\db;
 
-class SDBQuery
-{
+
+class SDBQuery {
 
     /**
      * @param       $query
@@ -18,8 +18,8 @@ class SDBQuery
      *
      * @return array|null
      */
-    public function queryAll($query, array $params = array())
-    {
+    public function queryAll($query, array $params = array()) {
+
         $stm = $this->execute($this->createCommand($query), $params);
         if ($stm == null) {
             return null;
@@ -34,14 +34,14 @@ class SDBQuery
      *
      * @return mixed|null
      */
-    public function query($query, array $params = array())
-    {
+    public function query($query, array $params = array()) {
+
         $stm = $this->execute($this->createCommand($query), $params);
         if ($stm == null) {
             return null;
         }
 
-        return $stm->fetch();
+        return $stm->fetch(\PDO::FETCH_COLUMN);
     }
 
     /**
@@ -50,8 +50,8 @@ class SDBQuery
      *
      * @return null|string
      */
-    public function queryScalar($query, array $params = array())
-    {
+    public function queryScalar($query, array $params = array()) {
+
         $stm = $this->execute($this->createCommand($query), $params);
         if ($stm == null) {
             return null;
@@ -65,8 +65,8 @@ class SDBQuery
      *
      * @return \PDOStatement
      */
-    public function createCommand($query)
-    {
+    public function createCommand($query) {
+
         $db = $this->getDBConnect();
 
         return $db->prepare($query);
@@ -74,12 +74,12 @@ class SDBQuery
 
     /**
      * @param \PDOStatement $statement
-     * @param array        $params
+     * @param array         $params
      *
      * @return null|\PDOStatement
      */
-    public function execute(\PDOStatement $statement, array $params = null)
-    {
+    public function execute(\PDOStatement $statement, array $params = null) {
+
         if (!$statement->execute($params)) {
             return null;
         }
@@ -87,8 +87,8 @@ class SDBQuery
         return $statement;
     }
 
-    protected function getDBConnect()
-    {
+    protected function getDBConnect() {
+
         $db = new SDB();
 
         return $db->getInstance();

@@ -11,16 +11,20 @@ namespace core;
 
 use core\db\SDBQuery;
 
+//TODO do methods of validate method
 abstract class Model
 {
 
-    protected $_attributes = array();
+    protected $_attributes = [];
     private $_executor;
-    private $_errors = array();
+    private $_errors = [];
 
     abstract public function getTableName();
 
     abstract public function getPKName();
+
+//TODO receive fields model table through PDO
+    abstract public function getTableFields();
 
     public function __construct()
     {
@@ -89,7 +93,9 @@ abstract class Model
      */
     public function setAttributes(array $attributes)
     {
-        $this->_attributes = $attributes;
+        foreach ($attributes as $k => $v) {
+            $this->{$k} = $attributes[$k];
+        }
     }
 
     /**
@@ -101,7 +107,7 @@ abstract class Model
     {
         $values = $this->_attributes;
         if (is_array($names)) {
-            $values2 = array();
+            $values2 = [];
             foreach ($names as $name) {
                 $values2[$name] = isset($values[$name]) ? $values[$name] : null;
             }
@@ -157,7 +163,11 @@ abstract class Model
     }
 
 
-
+    /**
+     * @param array $condition
+     *
+     * @return string
+     */
     public function generateQueryCondition(array $condition)
     {
         $query = '';
@@ -176,16 +186,44 @@ abstract class Model
         return $query;
     }
 
+    /**
+     * @param $query
+     * @param $params
+     *
+     * @return array|null
+     */
     public function findBySqlAll($query, $params)
     {
         return $this->_executor->queryAll($query, $params);
     }
 
+    /**
+     * @param $query
+     * @param $params
+     *
+     * @return mixed|null
+     */
     public function findBySql($query, $params)
     {
         return $this->_executor->query($query, $params);
     }
 
+    /**
+     * @param       $sql
+     * @param array $params
+     *
+     * @return mixed|null
+     */
+    public function execute($sql, $params = [])
+    {
+        return $this->_executor->query($sql, $params);
+    }
+
+    /**
+     * @param $key
+     *
+     * @return bool
+     */
     public function __isset($key)
     {
         if (isset($this->$key)) {
@@ -195,9 +233,49 @@ abstract class Model
         return isset($this->_attributes[$key]);
     }
 
+    /**
+     * @param $key
+     */
     public function __unset($key)
     {
         unset($this->$key);
         unset($this->_attributes[$key]);
+    }
+
+    public function update()
+    {
+        $this->beforeUpdate();
+//TODO added validation fields
+        $fields = '';
+        $params = [];
+        if (count($this->getTableFields())) {
+            foreach ($this->getTableFields() as $v) {
+                if (isset($this->{$v})) {
+                    if ($v != $this->getPKName()) {
+                        if ($fields != "") {
+                            $fields .= ", ";
+                        }
+
+                        $params[":{$v}"] = $this->{$v};
+                        $fields .= "`{$v}`=:{$v}";
+                    }
+                }
+            }
+        }
+//TODO Error during execution of a sql query UPDATE
+        $result = $this->execute("UPDATE `{$this->getTableName()}` SET {$fields} WHERE `{$this->getPKName()}`={$this->{$this->getPKName()}}", $params);
+        if ($result) {
+            $this->afterUpdate();
+        }
+
+        return $result;
+    }
+
+    public function beforeUpdate()
+    {
+    }
+
+    public function afterUpdate()
+    {
     }
 }

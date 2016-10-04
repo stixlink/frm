@@ -1,20 +1,23 @@
 $(document).ready(function () {
-    jQuery('a.pagination-item').click(function () {
+    ajaxUpdate();
+
+});
+function ajaxUpdate() {
+    jQuery('a[data-ajax]').click(function () {
         var obj = $(this);
-        var page = obj.attr('data-page');
+        var page = obj.attr('href');
         $.ajax({
-            url: '/news',
+            url: page,
             dataType: 'json',
             type: "get",
-            data: {'page': page},
             success: function (data) {
                 if ("status" in data && data['status'] && "content" in data) {
                     var div = document.createElement('div');
                     div.innerHTML = data.content;
-                    var html = $(div).find("div#news-list").html();
-                    $('#news-list').html(html);
-                    $('a.pagination-item').removeClass('active');
+                    var html = $(div).find("div#ajax-content").html();
+                    $('#ajax-content').html(html);
                     obj.addClass('active');
+                    ajaxUpdate();
                     return false;
                 }
                 return false;
@@ -22,4 +25,4 @@ $(document).ready(function () {
         });
         return false;
     });
-});
+}

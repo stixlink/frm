@@ -11,21 +11,22 @@
  */
 namespace core;
 
+
 use core\Model;
 
-class Pagination
-{
+class Pagination {
 
     public $pageSize = 2;
     public $offset = 0;
     public $limit;
+    public $pageVar = 'page';
     private $_model;
     private $_condition;
     private $_params;
 
 
-    public function __construct(Model $model, array $condition = [], array $params = [], $pageSize = null)
-    {
+    public function __construct(Model $model, array $condition = [], array $params = [], $pageSize = null) {
+
         if (!$pageSize) {
             $this->pageSize = (int)$pageSize;
         }
@@ -34,8 +35,8 @@ class Pagination
         $this->_params = $params;
     }
 
-    public function getPageCount($condition = [], $params = [])
-    {
+    public function getPageCount($condition = [], $params = []) {
+
         $queryCondition = $this->_model->generateQueryCondition($condition);
         $itemCount = $this->_model->findBySql("SELECT COUNT(*) as `count` FROM {$this->_model->getTableName()} " . $queryCondition, $params);
         if (isset($itemCount['count'])) {
@@ -45,9 +46,9 @@ class Pagination
         return 0;
     }
 
-    public function getPage($pageCount)
-    {
-        $page = empty($_GET['page']) ? 1 : $_GET['page'];
+    public function getPage($pageCount) {
+
+        $page = empty($_GET[$this->pageVar]) ? 1 : $_GET[$this->pageVar];
         if ($page > $pageCount) {
             $page = $pageCount;
         }
@@ -58,15 +59,25 @@ class Pagination
         return $page;
     }
 
-    public function generate()
-    {
+    public function getLimit() {
+
+        $page = $this->getPaginate();
+
+        $limitParams = ['offset' => ($page->getPageNum() - 1) * $page->getPageSize(),
+                        'rows' => $page->getPageSize()];
+
+        return $limitParams;
+    }
+
+    /**
+     * @return Paginate
+     */
+    public function getPaginate() {
+
         $pageCount = $this->getPageCount($this->_condition, $this->_params);
         $pageNum = $this->getPage($pageCount);
-        $result = ['countPage' =>$pageCount ,
-                   'limit' => ['offset' => ($pageNum - 1) * $this->pageSize,
-                               'rows' => $this->pageSize],
-                   'pageNum' => $pageNum];
+        $paging = new Paginate($pageCount, $pageNum, $this->pageSize);
 
-        return $result;
+        return $paging;
     }
 }

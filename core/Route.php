@@ -8,25 +8,25 @@
  */
 namespace core;
 
+
 use core\exception\HttpException;
 
-class Route
-{
+class Route {
 
-    public $defaultController = "news";
+    public $defaultController = "blog";
 
     private $_route;
     private $_controller;
     private $_action;
 
 
-    public function __construct(array $routes)
-    {
+    public function __construct(array $routes) {
+
         $this->routes = $routes;
     }
 
-    public function getURI()
-    {
+    public function getURI() {
+
         if (!empty($_SERVER['REQUEST_URI'])) {
             return trim($_SERVER['REQUEST_URI'], '/');
         }
@@ -40,8 +40,11 @@ class Route
         }
     }
 
-    public function run()
-    {
+    /**
+     * @throws HttpException
+     */
+    public function run() {
+
         $uri = $this->getURI();
         $m = parse_url($uri);
         if ($m) {
@@ -75,24 +78,83 @@ class Route
                 }
                 $controllerClass = $this->getNamespace($controllerFile);
                 $reflectionMethod = new \ReflectionMethod($controllerClass, "run");
-                $reflectionMethod->invokeArgs(new $controllerClass($controllerId, $action), $parameters);
+                try {
+                    $reflectionMethod->invokeArgs(new $controllerClass($this, $controllerId, $action), $parameters);
+                } catch (\Exception $e) {
+                    //TODO prints message Exception on site page
+                    var_dump($e->getMessage());
+                    exit();
+                }
             }
         }
 
         throw new HttpException('404', "The requested URL " . $uri . " was not found!");
     }
 
-    public function getControllerFilePath($controllerId)
-    {
+    /**
+     * @param $controllerId
+     *
+     * @return string
+     */
+    public function getControllerFilePath($controllerId) {
+
         return BASE_PATH . DS . APP_DIR . DS . 'controllers' . DS . ucfirst($controllerId) . 'Controller.php';
     }
 
-    public function getNamespace($fullPath)
-    {
+    /**
+     * @param $fullPath
+     *
+     * @return string
+     */
+    public function getNamespace($fullPath) {
+
         $path = str_replace([BASE_PATH, '.php'], "", $fullPath);
 
         $namespace = "\\" . trim(str_replace("/", "\\", $path), '\\');
 
         return $namespace;
+    }
+
+    /**
+     * @param     $url
+     * @param int $statusCode
+     */
+    public function redirect($url, $statusCode = 302) {
+
+        if (strpos($url, '/') === 0 && strpos($url, '//') !== 0) {
+            $url = $this->getHostInfo() . $url;
+        }
+        header('Location: ' . $url, true, $statusCode);
+        exit();
+    }
+
+    /**
+     * @param $url
+     * @param $params
+     *
+     * @return mixed|string
+     */
+    public function createUrl($url, $params) {
+
+//TODO edit the URL of the configurations using
+        if (is_array($params) && count($params) > 0) {
+            $paramsQuery = http_build_query($params);
+            $url = preg_replace('?', '', $url);
+            $url .= '?' . $paramsQuery;
+        }
+
+        return $url;
+    }
+
+    /**
+     * @param string $schema
+     */
+    public function getHostInfo($schema = 'http') {
+
+        if (isset($_SERVER['HTTP_HOST'])) {
+            $hostInfo = $schema . '://' . $_SERVER['HTTP_HOST'];
+        } else {
+            $hostInfo = $schema . '://' . $_SERVER['SERVER_NAME'];
+        }
     }
 }
