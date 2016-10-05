@@ -9,25 +9,22 @@
 
 namespace core;
 
+
 use core\db\SDBQuery;
 
 //TODO do methods of validate method
-abstract class Model
-{
+abstract class Model {
 
-    protected $_attributes = [];
+    protected $_attributes = array();
     private $_executor;
-    private $_errors = [];
+    private $_errors = array();
 
     abstract public function getTableName();
 
     abstract public function getPKName();
 
-//TODO receive fields model table through PDO
-    abstract public function getTableFields();
+    public function __construct() {
 
-    public function __construct()
-    {
         $this->_executor = new SDBQuery();
     }
 
@@ -36,8 +33,8 @@ abstract class Model
      *
      * @return mixed
      */
-    public static function instance($className = __CLASS__)
-    {
+    public static function instance($className = __CLASS__) {
+
         return new $className();
     }
 
@@ -45,8 +42,8 @@ abstract class Model
      * @param $name
      * @param $value
      */
-    public function __set($name, $value)
-    {
+    public function __set($name, $value) {
+
         $this->_attributes[$name] = $value;
     }
 
@@ -56,16 +53,16 @@ abstract class Model
      *
      * @return null
      */
-    public function __get($name)
-    {
+    public function __get($name) {
+
         return isset($this->_attributes[$name]) ? $this->_attributes[$name] : null;
     }
 
     /**
      * @return array
      */
-    public function getErrors()
-    {
+    public function getErrors() {
+
         return $this->_errors;
     }
 
@@ -74,8 +71,8 @@ abstract class Model
      *
      * @return  null
      */
-    public function getError($name)
-    {
+    public function getError($name) {
+
         return isset($this->_errors[$name]) ? $this->_errors[$name] : null;
     }
 
@@ -83,16 +80,16 @@ abstract class Model
      * @param   String $name
      * @param   String $value
      */
-    public function setError($name, $value)
-    {
+    public function setError($name, $value) {
+
         $this->_errors[$name];
     }
 
     /**
      * @param array $attributes
      */
-    public function setAttributes(array $attributes)
-    {
+    public function setAttributes(array $attributes) {
+
         foreach ($attributes as $k => $v) {
             $this->{$k} = $attributes[$k];
         }
@@ -103,8 +100,8 @@ abstract class Model
      *
      * @return array
      */
-    public function getAttributes($names = null)
-    {
+    public function getAttributes($names = null) {
+
         $values = $this->_attributes;
         if (is_array($names)) {
             $values2 = [];
@@ -123,11 +120,11 @@ abstract class Model
      *
      * @return null
      */
-    public function findByPk($pk)
-    {
+    public function findByPk($pk) {
+
         $pkName = $this->getPKName();
 
-        $result = $this->_executor->query("SELECT * FROM {$this->getTableName()} WHERE {$pkName}=:{$pkName}", array(":{$pkName}" => $pk));
+        $result = $this->_executor->query("SELECT * FROM {$this->getTableName()} WHERE {$pkName}=:{$pkName}", [":{$pkName}" => $pk]);
         if ($result) {
             $this->_attributes = $result;
 
@@ -143,8 +140,8 @@ abstract class Model
      *
      * @return array|null
      */
-    public function findAll(array $condition = [], array $params = [])
-    {
+    public function findAll(array $condition = [], array $params = []) {
+
         $query = "SELECT * FROM {$this->getTableName()} " . $this->generateQueryCondition($condition);
 
         $results = $this->_executor->queryAll($query, $params);
@@ -168,8 +165,8 @@ abstract class Model
      *
      * @return string
      */
-    public function generateQueryCondition(array $condition)
-    {
+    public function generateQueryCondition(array $condition) {
+
         $query = '';
         if (count($condition)) {
             $query .= isset($condition['where']) ? (" WHERE " . $condition['where']) : "";
@@ -192,8 +189,8 @@ abstract class Model
      *
      * @return array|null
      */
-    public function findBySqlAll($query, $params)
-    {
+    public function findBySqlAll($query, $params) {
+
         return $this->_executor->queryAll($query, $params);
     }
 
@@ -203,20 +200,21 @@ abstract class Model
      *
      * @return mixed|null
      */
-    public function findBySql($query, $params)
-    {
+    public function findBySql($query, $params) {
+
         return $this->_executor->query($query, $params);
     }
 
     /**
      * @param       $sql
      * @param array $params
+     * @param bool  $isUpdate
      *
-     * @return mixed|null
+     * @return bool|mixed|null
      */
-    public function execute($sql, $params = [])
-    {
-        return $this->_executor->query($sql, $params);
+    public function execute($sql, $params = [], $isUpdate = false) {
+
+        return $this->_executor->query($sql, $params, $isUpdate);
     }
 
     /**
@@ -224,8 +222,8 @@ abstract class Model
      *
      * @return bool
      */
-    public function __isset($key)
-    {
+    public function __isset($key) {
+
         if (isset($this->$key)) {
             return true;
         }
@@ -236,14 +234,17 @@ abstract class Model
     /**
      * @param $key
      */
-    public function __unset($key)
-    {
+    public function __unset($key) {
+
         unset($this->$key);
         unset($this->_attributes[$key]);
     }
 
-    public function update()
-    {
+    /**
+     * @return bool
+     */
+    public function update() {
+
         $this->beforeUpdate();
 //TODO added validation fields
         $fields = '';
@@ -257,25 +258,90 @@ abstract class Model
                         }
 
                         $params[":{$v}"] = $this->{$v};
-                        $fields .= "`{$v}`=:{$v}";
+                        $fields .= "`{$v}`= :{$v}";
                     }
                 }
             }
         }
 //TODO Error during execution of a sql query UPDATE
-        $result = $this->execute("UPDATE `{$this->getTableName()}` SET {$fields} WHERE `{$this->getPKName()}`={$this->{$this->getPKName()}}", $params);
-        if ($result) {
+        $id = $this->{$this->getPKName()};
+        $result = $this->_executor->query("UPDATE `{$this->getTableName()}` SET {$fields} WHERE `{$this->getPKName()}`='{$id}'", $params, true, false);
+        if ($result == 1) {
             $this->afterUpdate();
         }
 
-        return $result;
+        return $result == 1;
     }
 
-    public function beforeUpdate()
-    {
+    public function save() {
+
+        $this->beforeInsert();
+//TODO added validation fields
+        $fields = '';
+        $params = [];
+
+        if (count($this->getTableFields())) {
+            foreach ($this->getTableFields() as $v) {
+                if (isset($this->{$v})) {
+                    if ($v != $this->getPKName()) {
+                        if ($fields != "") {
+                            $fields .= ", ";
+                        }
+
+                        $params[":{$v}"] = $this->{$v};
+                        $fields .= "`{$v}`";
+                    }
+                }
+            }
+        }
+        $values = implode(', ', array_keys($params));
+        $result = $this->_executor->query("INSERT INTO `{$this->getTableName()}` ({$fields}) VALUES ({$values})", $params, true, true);
+        if ($result) {
+            $this->{$this->getPKName()} = $result;
+            $this->afterInsert();
+        }
+
+        return $result == 1;
     }
 
-    public function afterUpdate()
-    {
+    public function delete() {
+
+        $result = false;
+        if ($this->{$this->getPKName()}) {
+            $result = $this->_executor->query("DELETE FROM `{$this->getTableName()}` WHERE `{$this->getPKName()}`= :{$this->getPKName()};",
+                [':' . $this->getPKName() => $this->{$this->getPKName()}], true, false);
+            if ($result) {
+
+                $this->afterDelete();
+            }
+        }
+
+        return $result == 1;
     }
+
+//TODO receive fields model table through PDO
+    abstract public function getTableFields();
+
+    public function beforeUpdate() {
+
+    }
+
+    public function afterUpdate() {
+
+    }
+
+
+    public function beforeInsert() {
+
+    }
+
+    public function afterInsert() {
+
+    }
+
+    public function afterDelete() {
+
+    }
+
+
 }

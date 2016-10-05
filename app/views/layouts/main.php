@@ -22,12 +22,12 @@
 <div class = "blog-masthead">
     <div class = "container">
         <nav class = "blog-nav">
-            <a class = "blog-nav-item active" href = "#">Список постов</a>
+            <a data-pjax = "1" class = "blog-nav-item active" href = "<?= $this->getController()->createUrl('/blog/index') ?>">Список постов</a>
         </nav>
     </div>
 </div>
 
-<div class = "container">
+<div class = "container" id = "pjax-content">
     <?php echo $content; ?>
 </div><!-- /.container -->
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -38,6 +38,7 @@
         integrity = "sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin = "anonymous"></script>
 
+<script src = "http://pjax.heroku.com/jquery.pjax.js"></script>
 <script type = "application/javascript" src = "/js/main.js"></script>
 </body>
 </html>

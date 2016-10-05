@@ -73,7 +73,7 @@ class Controller {
      *
      * @return mixed|string
      */
-    public function createUrl($url, Array $params) {
+    public function createUrl($url, Array $params=[]) {
 
         return $this->getRoute()->createUrl($url, $params);
     }

@@ -57,7 +57,7 @@ class Route {
                 $controllerFile = $this->getControllerFilePath($this->defaultController);
                 $controllerClass = $this->getNamespace($controllerFile);
                 $reflectionMethod = new \ReflectionMethod($controllerClass, "run");
-                $reflectionMethod->invokeArgs(new $controllerClass(lcfirst($this->defaultController), null), []);
+                $reflectionMethod->invokeArgs(new $controllerClass($this, lcfirst($this->defaultController), null), []);
             }
             if ($pattern && preg_match("~$pattern~", $uri)) {
                 if ($pattern != "") {
@@ -82,7 +82,8 @@ class Route {
                     $reflectionMethod->invokeArgs(new $controllerClass($this, $controllerId, $action), $parameters);
                 } catch (\Exception $e) {
                     //TODO prints message Exception on site page
-                    var_dump($e->getMessage());
+                    echo $e->getMessage();
+                    var_dump($e->getTrace());
                     exit();
                 }
             }
@@ -130,20 +131,37 @@ class Route {
 
     /**
      * @param $url
-     * @param $params
+     * @param [] $params The parameter used in the route add to the parameters first
      *
      * @return mixed|string
      */
     public function createUrl($url, $params) {
 
+        $resultUrl = null;
 //TODO edit the URL of the configurations using
         if (is_array($params) && count($params) > 0) {
             $paramsQuery = http_build_query($params);
-            $url = preg_replace('?', '', $url);
-            $url .= '?' . $paramsQuery;
+            if (count($this->routes)) {
+                foreach ($this->routes as $pattern => $uri) {
+                    if (preg_match("~" . trim($url, "/") . "~", $pattern)) {
+                        $var = trim($url, "/") . "/" . array_shift($params);
+                        if (preg_match("~{$pattern}~", $var)) {
+                            $resultUrl = '/' . $var;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!$resultUrl) {
+                $resultUrl = preg_replace('?', '', $url);
+                $resultUrl .= '?' . $paramsQuery;
+            }
+        }
+        if (!$resultUrl) {
+            $resultUrl = $url;
         }
 
-        return $url;
+        return $resultUrl;
     }
 
     /**

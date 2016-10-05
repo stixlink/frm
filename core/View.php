@@ -9,8 +9,8 @@
 
 namespace core;
 
-class View
-{
+
+class View {
     public $titlePage;
 
     private $_layouts = "main";
@@ -19,8 +19,8 @@ class View
     private $_layoutsDir = "layouts";
     private $_extensionsFile = "php";
 
-    public function __construct($controller)
-    {
+    public function __construct($controller) {
+
         $this->_controller = $controller;
     }
 
@@ -28,13 +28,14 @@ class View
      *
      * @return mixed
      */
-    public function getController()
-    {
+    public function getController() {
+
         return $this->_controller;
     }
 
-    public function render($view, $params, $inLayout = true, $return = false)
-    {
+    public function render($view, $params, $inLayout = true, $return = false) {
+
+//        $params = array_merge($params, ['this' => $this->getController()]);
         $path = $this->getViewPath($view);
         $content = $this->getViewContent($path, $params);
         if ($inLayout) {
@@ -59,8 +60,8 @@ class View
      * @return string
      * @throws \Exception
      */
-    public function getViewPath($view)
-    {
+    public function getViewPath($view) {
+
         $path = BASE_PATH . DS . APP_DIR . DS . $this->_defaultDir . DS . ($this->_controller->getId() . DS . $view . "." . $this->_extensionsFile);
         if (file_exists($path)) {
             return $path;
@@ -75,8 +76,8 @@ class View
      *
      * @return string
      */
-    protected function getViewContent($pathViewFile, $data = null, $return = true)
-    {
+    protected function getViewContent($pathViewFile, $data = null, $return = true) {
+
         if (is_array($data)) {
             extract($data, EXTR_PREFIX_SAME, 'data');
         }
@@ -91,8 +92,8 @@ class View
         }
     }
 
-    public function getLayoutsPath()
-    {
+    public function getLayoutsPath() {
+
         $path = BASE_PATH . DS . APP_DIR . DS . $this->_defaultDir . DS . $this->_layoutsDir . DS . $this->getLayoutsName() . "." . $this->_extensionsFile;
         if (file_exists($path)) {
             return $path;
@@ -103,16 +104,16 @@ class View
     /**
      * @return string
      */
-    public function getLayoutsName()
-    {
+    public function getLayoutsName() {
+
         return $this->_layouts;
     }
 
     /**
      * @param $value
      */
-    public function setLayoutsName($value)
-    {
+    public function setLayoutsName($value) {
+
         $this->_layouts = $value;
     }
 }

@@ -12,6 +12,8 @@ namespace core\db;
 
 class SDBQuery {
 
+    private $_connect;
+
     /**
      * @param       $query
      * @param array $params
@@ -31,17 +33,43 @@ class SDBQuery {
     /**
      * @param       $query
      * @param array $params
+     * @param bool  $isUpdate
+     * @param bool  $isCreate
      *
-     * @return mixed|null
+     * @return mixed|null|string
      */
-    public function query($query, array $params = array()) {
+    public function query($query, array $params = array(), $isUpdate = false, $isCreate = false) {
 
-        $stm = $this->execute($this->createCommand($query), $params);
-        if ($stm == null) {
-            return null;
+        $stm = $this->createCommand($query);
+        if (!$isUpdate) {
+            $stm = $this->execute($stm, $params);
+
+            if ($stm == null) {
+                return null;
+            }
         }
 
-        return $stm->fetch(\PDO::FETCH_COLUMN);
+        if ($isUpdate) {
+            if (count($params)) {
+                foreach ($params as $k => $v) {
+                    $p = is_int($v) ? \PDO::PARAM_INT : \PDO::PARAM_STR;
+                    $stm->bindValue($k, $v, $p);
+                }
+            }
+
+            if ($res = $stm->execute()) {
+                if ($isCreate) {
+                    $res = $this->getDBConnect()->lastInsertId();
+                }
+
+                return $res;
+            } else {
+                return null;
+            }
+        }
+
+
+        return $stm->fetch();
     }
 
     /**
@@ -80,7 +108,12 @@ class SDBQuery {
      */
     public function execute(\PDOStatement $statement, array $params = null) {
 
-        if (!$statement->execute($params)) {
+        if (count($params)) {
+            foreach ($params as $k => $v) {
+                $statement->bindParam($k, $v);
+            }
+        }
+        if (!$statement->execute()) {
             return null;
         }
 
@@ -89,8 +122,12 @@ class SDBQuery {
 
     protected function getDBConnect() {
 
+        if ($this->_connect) {
+            return $this->_connect;
+        }
         $db = new SDB();
+        $this->_connect = $db->getInstance();
 
-        return $db->getInstance();
+        return $this->_connect;
     }
 }
